@@ -7,6 +7,6 @@ spec:
   selector:
     app: weshopify-brands-svc
   ports:
-  - port: 5022
-    targetPort: 5022
+  - port: 5017
+    targetPort: 5017
     nodePort: 30517
