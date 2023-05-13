@@ -1,14 +1,17 @@
 package com.weshopify.platform.config;
 
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.weshopify.platform.exceptions.FilterChainExceptionHandler;
 
@@ -24,8 +27,27 @@ public class AppSecurityConfig {
 	@Autowired
     private FilterChainExceptionHandler filterChainExceptionHandler;
 	
+	@Autowired
+	private CORSCustomizer corsCustomizer;
+
+	
 	@Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		log.info("settingup  the cors in filter chain");
+		corsCustomizer.corsCustomizer(http);
+		http.cors(c->{
+            CorsConfigurationSource source=s->{
+                CorsConfiguration cc=new CorsConfiguration();
+                cc.setAllowCredentials(true);
+                cc.setAllowedOrigins(Collections.singletonList("http://localhost:5012"));
+                cc.setAllowedHeaders(Collections.singletonList("*"));
+                cc.setAllowedMethods(Collections.singletonList("*"));
+                return  cc;
+            };
+            c.configurationSource(source);
+        });
+
+		
         http.authorizeHttpRequests((authz) -> {
 			try {
 				authz
@@ -33,6 +55,7 @@ public class AppSecurityConfig {
 				        .and().csrf().disable().anonymous().disable()
 				        .addFilterBefore(new JwtAuthnFilter(authnService), BasicAuthenticationFilter.class)
 				        .addFilterAfter(filterChainExceptionHandler, LogoutFilter.class);
+				
 				        
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -43,8 +66,8 @@ public class AppSecurityConfig {
     }
 	
 	@Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
+    WebSecurityCustomizer webSecurityCustomizer() {
 		log.info("ingnoring the security");
-		return (web) -> web.ignoring().requestMatchers("/swagger-ui.html","/swagger-ui/**","/v3/api-docs/**");
+		return (web) -> web.ignoring().requestMatchers("/swagger-ui.html","/swagger-ui/**","/v3/api-docs/**","/actuator/**");
     }
 }
