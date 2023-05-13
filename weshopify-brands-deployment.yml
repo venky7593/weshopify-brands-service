@@ -42,7 +42,7 @@ spec:
            - name: AXON_SERVER_HOST
              value: weshopify-axon-server
            - name: AXON_SERVER_PORT
-             value: "8024"
+             value: "8124"
            - name: CATEGORIES_SVC_HOST
              value: weshopify-categories-svc
            - name: CATEGORIES_SVC_PORT
