@@ -20,7 +20,7 @@ pipeline{
                 sshagent(['ANSIBLE_SERVER']){
                     sh 'scp weshopify-brands-deployment.yml ansible-admin@172.31.7.122:/opt/weshopify-brands-cd'
                     sh 'scp weshopify-brands-service.yml ansible-admin@172.31.7.122:/opt/weshopify-brands-cd'
-                    sh 'scp jfrog.sh ansible-admin@172.31.7.122:/opt/weshopify-brands-ci'
+                    sh 'scp weshopify-brands-svc-playbook.yml ansible-admin@172.31.7.122:/opt/weshopify-brands-cd'
                     
                 }
             }
@@ -32,7 +32,7 @@ pipeline{
                     sshagent(['ANSIBLE_SERVER']){
                     sh '''
                         ssh -tt ansible-admin@172.31.7.122 << EOF
-                            ansible-playbook /opt/weshopify-brands-ci/weshopify-brands-svc-playbook.yml
+                            ansible-playbook /opt/weshopify-brands-cd/weshopify-brands-svc-playbook.yml
                             exit
                         EOF
                     '''
