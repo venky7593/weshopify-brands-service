@@ -1,34 +1,19 @@
-- name: weshopify-svc-registry-playbook
-  hosts: docker-host
+- name: weshopify-brands-svs-deploy-playbook
+  hosts: k8s-master
   become: 'yes'
-  become_user: docker-admin
-  tasks: 
+  become_user: k8s-admin
+  tasks:
    - name: create a app-directory
-     shell: mkdir app-dir && chmod 777 app-dir
+     shell: mkdir weshopify-brands-svc-dir && chmod 777 weshopify-brands-svc-dir
 
-   - name: create artifact target directory
-     shell: mkdir app-dir/target && chmod 777 app-dir/target
+   - name: copy the manifest files from ansible to k8s-master
+     copy: src=/opt/weshopify-brands-cd  dest=weshopify-brands-svc-dir 
+     
+   - name: remove ansible-playbook.yml
+     shell: echo admin | sudo -S rm -f /home/k8s-admin/weshopify-brands-svc-dir/weshopify-brands-cd/weshopify-brands-svc-playbook.yml
 
-   - name: copy the jfrog file from ansible to docker
-     copy: src=/opt/weshopify-brands-ci/jfrog.sh dest=app-dir
+   - name: execute the manifest files on k8s-master
+     shell: echo admin | sudo -S kubectl apply -f /home/k8s-admin/weshopify-brands-svc-dir/weshopify-brands-cd
 
-   - name: copy the Dockerfile Dockerserver
-     copy: src=/opt/weshopify-brands-ci/Dockerfile dest=app-dir
-    
-   - name: download the artifact from artifactory
-     shell: chmod 777 ./app-dir/jfrog.sh && sh ./app-dir/jfrog.sh
-
-   - name: change the permission of the dockerfile
-     shell: chmod 777 ./app-dir/Dockerfile
-
-   - name: build the docker image
-     shell: echo admin | sudo -S docker build -f ./app-dir/Dockerfile --tag narsimybooks/weshopify-brands-svc-img .
-   
-   - name: push the docker image to docker hub
-     shell: echo admin | sudo -S docker push narsimybooks/weshopify-brands-svc-img
-
-   - name: remove the image locally
-     shell: echo admin | sudo -S docker rmi narsimybooks/weshopify-brands-svc-img
-   
-   - name: remove the app-dir
-     shell: rm -rf app-dir
+   #- name: remove the infra-svc-dir
+    # shell: rm -rf infra-svc-dir
