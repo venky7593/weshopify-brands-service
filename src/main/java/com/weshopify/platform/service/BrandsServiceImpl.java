@@ -150,7 +150,6 @@ public class BrandsServiceImpl implements BrandsService {
 			
 			brandsBean.getCategories().parallelStream().forEach(catbean -> {
 				long startTime = System.currentTimeMillis();
-				log.info("invoking the category service via feign client");
 				ResponseEntity<String> catRespEntity = catApiFeignClient.findCategoryById(catbean.getId(), headerMap);
 				long endTime = System.currentTimeMillis();
 				log.info("total time taken by the category service feign clien client(in millis) {}",(endTime-startTime));
